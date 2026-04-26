@@ -1,0 +1,73 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function getUser() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isOrgAdmin(orgId) {
+      return isSignedIn() &&
+        getUser().role == 'orgAdmin' &&
+        getUser().organizationId == orgId;
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && getUser().role == 'superAdmin';
+    }
+
+    match /users/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isSuperAdmin());
+      allow create: if isSignedIn() && request.auth.uid == uid;
+      allow update: if isSignedIn() && request.auth.uid == uid;
+      allow delete: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    match /cities/{cityId} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+
+    match /organizations/{orgId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isOrgAdmin(orgId) || isSuperAdmin();
+    }
+
+    match /places/{placeId} {
+      allow read: if resource.data.published == true || isSuperAdmin() ||
+        (isSignedIn() && resource.data.organizationId == getUser().organizationId);
+      allow create: if isSignedIn() &&
+        request.resource.data.organizationId == getUser().organizationId;
+      allow update, delete: if isSignedIn() &&
+        (isOrgAdmin(resource.data.organizationId) || isSuperAdmin());
+
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+        allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      }
+    }
+
+    match /events/{eventId} {
+      allow read: if resource.data.status == 'published' || isSuperAdmin() ||
+        (isSignedIn() && resource.data.organizationId == getUser().organizationId);
+      allow create: if isSignedIn() &&
+        request.resource.data.organizationId == getUser().organizationId;
+      allow update, delete: if isSignedIn() &&
+        (isOrgAdmin(resource.data.organizationId) || isSuperAdmin());
+
+      match /registrations/{userId} {
+        allow read: if isSignedIn() && (request.auth.uid == userId ||
+          isOrgAdmin(get(/databases/$(database)/documents/events/$(eventId)).data.organizationId));
+        allow create: if isSignedIn() && request.auth.uid == userId;
+        allow update, delete: if isSignedIn() && request.auth.uid == userId;
+      }
+    }
+  }
+}
