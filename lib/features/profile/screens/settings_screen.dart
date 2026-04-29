@@ -33,10 +33,11 @@ class SettingsScreen extends StatelessWidget {
                   selected: currentLocale == 'el',
                 ),
                 const Divider(
-                    height: 0.5,
-                    color: AppColors.border,
-                    indent: 14,
-                    endIndent: 14),
+                  height: 0.5,
+                  color: AppColors.border,
+                  indent: 14,
+                  endIndent: 14,
+                ),
                 _LanguageTile(
                   label: l10n.english,
                   code: 'en',
@@ -58,8 +59,10 @@ class SettingsScreen extends StatelessWidget {
               contentPadding: EdgeInsets.zero,
               value: true,
               onChanged: (v) {},
-              title: Text(l10n.upcomingEvents,
-                  style: const TextStyle(fontSize: 14)),
+              title: Text(
+                l10n.upcomingEvents,
+                style: const TextStyle(fontSize: 14),
+              ),
               activeThumbColor: AppColors.primary,
             ),
           ),
@@ -77,11 +80,14 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-      child: Text(text,
-          style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary)),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textSecondary,
+        ),
+      ),
     );
   }
 }
@@ -102,8 +108,11 @@ class _LanguageTile extends StatelessWidget {
     return ListTile(
       title: Text(label, style: const TextStyle(fontSize: 14)),
       trailing: selected
-          ? const Icon(Icons.check_circle,
-              color: AppColors.primary, size: 20)
+          ? const Icon(
+              Icons.check_circle,
+              color: AppColors.primary,
+              size: 20,
+            )
           : null,
       onTap: () {
         context.read<LocaleBloc>().add(LocaleChanged(Locale(code)));

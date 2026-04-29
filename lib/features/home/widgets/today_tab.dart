@@ -120,7 +120,7 @@ class TodayTab extends StatelessWidget {
   }
 }
 
-// ─── Date header ─────────────────────────────────────────
+// ─── Date header ──────────────────────────────────────
 
 class _DateHeader extends StatelessWidget {
   final DateTime now;
@@ -132,7 +132,7 @@ class _DateHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).languageCode;
-    final dateStr = _formatDate(now, locale, l10n);
+    final dateStr = _formatDate(now, locale);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,60 +150,129 @@ class _DateHeader extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime d, String locale, AppLocalizations l10n) {
-    final weekdays = locale == 'el'
-        ? [
-            'Δευτέρα',
-            'Τρίτη',
-            'Τετάρτη',
-            'Πέμπτη',
-            'Παρασκευή',
-            'Σάββατο',
-            'Κυριακή'
-          ]
-        : [
-            'Monday',
-            'Tuesday',
-            'Wednesday',
-            'Thursday',
-            'Friday',
-            'Saturday',
-            'Sunday'
-          ];
-    final months = locale == 'el'
-        ? [
-            'Ιαν',
-            'Φεβ',
-            'Μαρ',
-            'Απρ',
-            'Μάι',
-            'Ιουν',
-            'Ιουλ',
-            'Αυγ',
-            'Σεπ',
-            'Οκτ',
-            'Νοε',
-            'Δεκ'
-          ]
-        : [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec'
-          ];
-    return '${weekdays[d.weekday - 1]}, ${d.day} ${months[d.month - 1]}';
+  String _formatDate(DateTime d, String locale) {
+    final weekdays = _weekdaysForLocale(locale);
+    final months = _monthsForLocale(locale);
+
+    final weekday = weekdays[d.weekday - 1];
+    final month = months[d.month - 1];
+    return '$weekday, ${d.day} $month';
+  }
+
+  List<String> _weekdaysForLocale(String locale) {
+    switch (locale) {
+      case 'el':
+        return [
+          'Δευτέρα',
+          'Τρίτη',
+          'Τετάρτη',
+          'Πέμπτη',
+          'Παρασκευή',
+          'Σάββατο',
+          'Κυριακή',
+        ];
+      case 'sq':
+        return [
+          'E hënë',
+          'E martë',
+          'E mërkurë',
+          'E enjte',
+          'E premte',
+          'E shtunë',
+          'E diel',
+        ];
+      case 'de':
+        return [
+          'Montag',
+          'Dienstag',
+          'Mittwoch',
+          'Donnerstag',
+          'Freitag',
+          'Samstag',
+          'Sonntag',
+        ];
+      case 'en':
+      default:
+        return [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday',
+        ];
+    }
+  }
+
+  List<String> _monthsForLocale(String locale) {
+    switch (locale) {
+      case 'el':
+        return [
+          'Ιαν',
+          'Φεβ',
+          'Μαρ',
+          'Απρ',
+          'Μάι',
+          'Ιουν',
+          'Ιουλ',
+          'Αυγ',
+          'Σεπ',
+          'Οκτ',
+          'Νοε',
+          'Δεκ',
+        ];
+      case 'sq':
+        return [
+          'Jan',
+          'Shk',
+          'Mar',
+          'Pri',
+          'Maj',
+          'Qer',
+          'Korr',
+          'Gus',
+          'Sht',
+          'Tet',
+          'Nën',
+          'Dhj',
+        ];
+      case 'de':
+        return [
+          'Jan',
+          'Feb',
+          'Mär',
+          'Apr',
+          'Mai',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Okt',
+          'Nov',
+          'Dez',
+        ];
+      case 'en':
+      default:
+        return [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
+    }
   }
 }
 
-// ─── "Τώρα" highlight ───────────────────────────────────
+// ─── NOW / STARTING SOON highlight ─────────────────────
 
 class _NowHighlight extends StatelessWidget {
   final List<Event> live;
@@ -279,7 +348,7 @@ class _NowHighlight extends StatelessWidget {
   }
 }
 
-// ─── Time slot section ──────────────────────────────────
+// ─── Time slot section ─────────────────────────────────
 
 class _TimeSlotSection extends StatelessWidget {
   final String title;
@@ -312,7 +381,7 @@ class _TimeSlotSection extends StatelessWidget {
   }
 }
 
-// ─── Timeline event card ────────────────────────────────
+// ─── Timeline event card ───────────────────────────────
 
 class _TimelineEventCard extends StatelessWidget {
   final Event event;
@@ -455,15 +524,15 @@ class _TimelineEventCard extends StatelessWidget {
 
   String? _formatDuration(Duration d) {
     if (d.inMinutes < 30) return null;
-    if (d.inHours < 1) return '${d.inMinutes}\''; // μόνο λεπτά
+    if (d.inHours < 1) return "${d.inMinutes}'";
     final hours = d.inHours;
     final minutes = d.inMinutes % 60;
     if (minutes == 0) return '${hours}h';
-    return '${hours}h ${minutes}\'';
+    return "${hours}h $minutes'";
   }
 }
 
-// ─── Open places now ────────────────────────────────────
+// ─── Open places now ───────────────────────────────────
 
 class _OpenPlacesNow extends StatelessWidget {
   final String cityId;
@@ -594,7 +663,7 @@ class _OpenPlaceRow extends StatelessWidget {
   }
 }
 
-// ─── Empty state ────────────────────────────────────────
+// ─── Empty state ───────────────────────────────────────
 
 class _EmptyTodayState extends StatelessWidget {
   final AppLocalizations l10n;
